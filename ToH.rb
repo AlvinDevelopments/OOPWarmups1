@@ -1,16 +1,14 @@
 class TowerOfHanoi
 
   def initialize(size)
-   @disk_count = size
-
+    @move_count = 0
+    @disk_count = size
     @winning_stack = Stack.new(size)
-
     i = size
     @stacks = Array.new(3)
     @stacks[0] = Stack.new(size)
     @stacks[1] = Stack.new(size)
     @stacks[2] = Stack.new(size)
-
     size.times do
       @stacks[0].stack(i)
       @winning_stack.stack(i)
@@ -20,16 +18,40 @@ class TowerOfHanoi
 
   def make_move()
    render()
-   puts "where do you want to make move?"
+   dest = 0
+   org = 0
+   while true
+     puts "What column would you like to move from?"
      org = gets.chomp
-   puts "where do you want to move to?"
-     dest = gets.chomp
-   @stacks[org.to_i].remove_top() if  @stacks[dest.to_i].stack(@stacks[org.to_i].top)
 
+     if org.to_i >= 3 || org.to_i < 0
+       puts "Invalid column index, please try again."
+     else
+       break
+     end
+    end
 
+    while true
+      puts "What column would you like to move to?"
+      dest = gets.chomp
+
+      if dest.to_i >= 3 || dest.to_i < 0
+        puts "Invalid column index, please try again."
+      elsif dest == org
+        puts "Cannot place disk into its current column, please try again."
+      else
+        break
+      end
+     end
+
+   if  @stacks[dest.to_i].stack(@stacks[org.to_i].top)
+     @stacks[org.to_i].remove_top()
+     @move_count+=1
+   end
   end
 
   def render()
+    puts "MOVES: #{@move_count}"
     print @stacks[0].to_s
     puts
     print @stacks[1].to_s
@@ -48,7 +70,14 @@ class TowerOfHanoi
   end
 
 
-
+  def start_game()
+    while true
+      make_move
+      break if check_win?
+    end
+    render
+    puts "You won with #{@move_count} moves!"
+  end
 
 
 end
@@ -74,6 +103,7 @@ class Stack
     elsif @top == 0
       return true
     else
+     puts "Invalid move, please try again."
      return false
     end
   end
@@ -107,9 +137,4 @@ end
 
 
 new_game = TowerOfHanoi.new(3)
-while true
-  new_game.make_move
-  break if new_game.check_win?
-end
-new_game.render
-puts "you win!!!"
+new_game.start_game()
